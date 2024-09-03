@@ -8,7 +8,8 @@ var gameData = {
         dryWood: 0,
         dryWoodPerClick: 1,
         broadLeaves: 0,
-        broadLeavesPerClick: 1
+        broadLeavesPerClick: 1,
+        inspiration: 0
       }
 
       // Main loop
@@ -34,6 +35,10 @@ var gameData = {
 
       function updatePopulationCount() {
         document.getElementById("population").innerHTML = gameData.population + "/" + gameData.populationMax + " Population"
+      }
+
+      function updateInspirationCount() {
+        document.getElementById("inspirationGained").innerHTML = gameData.inspiration + " Inspiration Gained"
       }
 
       function autoForage() {
@@ -85,6 +90,15 @@ var gameData = {
       	}
       }
 
+      function gainInspiration() {
+      	if(gameData.food >= 10){
+      		gameData.food -= 10
+      		gameData.inspiration += 1
+      		updateInspirationCount()
+      		updateFoodCount()
+      	}
+      }
+
       function buyFoodPerClick() {
         if (gameData.food >= gameData.foodPerClickCost) {
           gameData.food -= gameData.foodPerClickCost
@@ -93,4 +107,14 @@ var gameData = {
           updateFoodCount()
           document.getElementById("perClickUpgrade").innerHTML = "Upgrade Food Foraging (Currently Level " + gameData.foodPerClick + ") Cost: " + gameData.foodPerClickCost + " Food"
         }
+      }
+
+      function learnFire() {
+      	if(gameData.inspiration >= 10){
+      		gameData.inspiration -= 10
+      		updateInspirationCount()
+      		var element = document.getElementById("learnFire")
+      		element.parentNode.removeChild(element)
+      		document.getElementById("researchContainer").innerHTML = "<button>Cook Food</button>"
+      	}
       }
