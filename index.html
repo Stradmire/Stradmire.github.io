@@ -6,14 +6,20 @@
   </head>
   <body>
     <!--Historic population growth rate is 0.04% per year-->
-    <p id="population">50 Population</p>
+    <p id="population">50/52 Population</p>
     <img src="images/character.png">
     <p id="forageRate">750 Food/100s</p>
     <p id="foodForaged">0 Food</p>
+    <p id="dryWoodForaged">0 Dry Wood</p>
+    <p id="broadLeavesForaged">0 Broad Leaves</p>
     <button onclick="forageFood()">Forage Food</button>
     <button onclick="buyFoodPerClick()" id="perClickUpgrade">
-    Upgrade Foraging (Currently Level 1) Cost: 10 Food</button>
+    Upgrade Food Foraging (Currently Level 1) Cost: 10 Food</button>
     <button onclick="buyPopulation()">Buy Population Cost: 75 Food</button>
+    <br>
+    <button onclick="forageDryWood()">Forage Dry Wood</button>
+    <button onclick="forageBroadLeaves()">Forage Broad Leaves</button>
+    <button onclick="constructLeanTo()">Construct Lean-to</button>
     <script src="js/main.js" charset="utf-8" type="text/javascript"></script>
   </body>
 </html>

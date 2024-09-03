@@ -3,7 +3,12 @@ var gameData = {
         foodPerClick: 1,
         foodPerClickCost: 10,
         foodForagingEfficiency: 15,
-        population: 50
+        population: 50,
+        populationMax: 52,
+        dryWood: 0,
+        dryWoodPerClick: 1,
+        broadLeaves: 0,
+        broadLeavesPerClick: 1
       }
 
       // Main loop
@@ -19,6 +24,18 @@ var gameData = {
         document.getElementById("foodForaged").innerHTML = gameData.food + " Food Foraged"
       }
 
+      function updateDryWoodCount() {
+        document.getElementById("dryWoodForaged").innerHTML = gameData.dryWood + " Dry Wood Foraged"
+      }
+
+      function updateBroadLeavesCount() {
+        document.getElementById("broadLeavesForaged").innerHTML = gameData.broadLeaves + " Broad Leaves Foraged"
+      }
+
+      function updatePopulationCount() {
+        document.getElementById("population").innerHTML = gameData.population + "/" + gameData.populationMax + " Population"
+      }
+
       function autoForage() {
         gameData.food += gameData.population * gameData.foodForagingEfficiency
         updateFoodCount()
@@ -29,14 +46,43 @@ var gameData = {
         updateFoodCount()
       }
 
+      function forageDryWood() {
+      	if (gameData.food >= 1) {
+      		gameData.food -= 1
+      		gameData.dryWood += gameData.dryWoodPerClick
+      		updateDryWoodCount()
+      		updateFoodCount()
+      	}
+      }
+
+      function forageBroadLeaves() {
+      	if (gameData.food >= 1) {
+      		gameData.food -= 1
+      		gameData.broadLeaves += gameData.broadLeavesPerClick
+      		updateBroadLeavesCount()
+      		updateFoodCount()
+      	}
+      }
+
       function buyPopulation(){
-        if (gameData.food >= 75) {
+        if (gameData.food >= 75 && gameData.population < gameData.populationMax) {
           gameData.food -= 75
           gameData.population += 1
           updateFoodCount()
           updateForageRate()
-          document.getElementById("population").innerHTML = gameData.population + " Population"
+          updatePopulationCount()
         }
+      }
+
+      function constructLeanTo() {
+      	if(gameData.dryWood >= 40 && gameData.broadLeaves >= 40) {
+      		gameData.populationMax += 1
+      		gameData.dryWood -= 40
+      		gameData.broadLeaves -= 40
+      		updateDryWoodCount()
+      		updateBroadLeavesCount()
+      		updatePopulationCount()
+      	}
       }
 
       function buyFoodPerClick() {
@@ -45,6 +91,6 @@ var gameData = {
           gameData.foodPerClick += 1
           gameData.foodPerClickCost *= 2
           updateFoodCount()
-          document.getElementById("perClickUpgrade").innerHTML = "Upgrade Foraging (Currently Level " + gameData.foodPerClick + ") Cost: " + gameData.foodPerClickCost + " Food"
+          document.getElementById("perClickUpgrade").innerHTML = "Upgrade Food Foraging (Currently Level " + gameData.foodPerClick + ") Cost: " + gameData.foodPerClickCost + " Food"
         }
       }
