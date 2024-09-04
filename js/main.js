@@ -1,5 +1,6 @@
 var gameData = {
         food: 0,
+        foodCents: 0,
         foodPerClick: 1,
         foodPerClickCost: 10,
         foodForagingEfficiency: 15,
@@ -12,10 +13,21 @@ var gameData = {
         inspiration: 0
       }
 
-      // Main loop
+      // Main loop timer
       var mainGameLoop = window.setInterval(function() {
-        autoForage()
-      }, 100000)
+        update()
+      }, 1000)
+
+      // Main loop
+      function update() {
+      	autoForage()
+      }
+
+      function incrementFood(amount) {
+      	gameData.foodCents += amount
+      	gameData.food += Math.floor(gameData.foodCents/100)
+      	gameData.foodCents = gameData.foodCents % 100
+      }
 
       var autoForageLoop = window.setInterval(function() {
         document.getElementById("plantForagingProgress").value += 1
@@ -46,7 +58,7 @@ var gameData = {
       }
 
       function autoForage() {
-        gameData.food += gameData.population * gameData.foodForagingEfficiency
+      	incrementFood(gameData.population * gameData.foodForagingEfficiency)
         updateFoodCount()
         document.getElementById("plantForagingProgress").value = 0
       }
@@ -115,6 +127,7 @@ var gameData = {
       }
 
       function learnFire() {
+      	createLabor("Test labor", "Test Resource")
       	if(gameData.inspiration >= 10){
       		gameData.inspiration -= 10
       		updateInspirationCount()
@@ -122,4 +135,23 @@ var gameData = {
       		element.parentNode.removeChild(element)
       		document.getElementById("researchContainer").innerHTML = "<button>Cook Food</button>"
       	}
+      }
+
+      function createLabor(name, resource){
+      	var labor = {
+      		name: "unassigned",
+      		resource: "unassigned"
+      	}
+      	labor.name = name
+      	labor.resource = resource
+      	createElementFromLabor(labor)
+      }
+
+      function createElementFromLabor(labor){
+      	newDiv = document.createElement("div")
+      	button1 = document.createElement("button")
+      	button1.innerHTML = "Get " + labor.resource
+
+      	newDiv.appendChild(button1)
+      	document.body.appendChild(newDiv)
       }
