@@ -7,6 +7,8 @@
   <body>
     <h2>Society Builder</h2>
     <img src="images/character.png">
+    <p id="seasonLabel">Current Season: Spring</p>
+    <progress id="seasonProgress" value="0" max="100"></progress>
     <hr>
 
     <h2>Resources</h2>
@@ -30,7 +32,6 @@
     <button onclick="buyPopulation()">Buy Population (75 Food)</button>
     <div>
       <h4>Plant Foraging | 50 Foragers | <span id="forageRate">750 Food/100s</span></h4>
-      <progress id="plantForagingProgress" value="0" max="100"></progress>
       <button onclick="buyPlantForager()">Plant Forager (75 Food)</button>
       <br>
       <button onclick="forageFood()">Forage Plants</button>
