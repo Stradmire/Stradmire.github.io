@@ -17,6 +17,10 @@ var gameData = {
         autoForage()
       }, 100000)
 
+      var autoForageLoop = window.setInterval(function() {
+        document.getElementById("plantForagingProgress").value += 1
+      }, 1000)
+
       function updateForageRate() {
         document.getElementById("forageRate").innerHTML = gameData.population * gameData.foodForagingEfficiency + " Food/100s"
       }
@@ -44,6 +48,7 @@ var gameData = {
       function autoForage() {
         gameData.food += gameData.population * gameData.foodForagingEfficiency
         updateFoodCount()
+        document.getElementById("plantForagingProgress").value = 0
       }
 
       function forageFood() {
