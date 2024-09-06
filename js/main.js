@@ -6,13 +6,15 @@ var gameData = {
     foodForagingEfficiency: 15,
     population: 50,
     populationMax: 52,
-    dryWood: 0,
-    dryWoodPerClick: 1,
-    broadLeaves: 0,
-    broadLeavesPerClick: 1,
     inspiration: 0,
     day: 1
 }
+
+let resources = {}
+
+let producers = {}
+
+let labels = {}
 
 // Main loop timer
 var mainGameLoop = window.setInterval(function() {
@@ -22,7 +24,17 @@ update()
 // Main loop
 function update() {
 	autoForage()
+	updateLabels()	
 	incrementDay()
+}
+
+function updateLabels() {
+	if (labels != null){
+		Object.keys(labels).forEach((label) => {
+			let producer = producers[labels[label].name]
+			labels[label].reference.innerHTML = labels[label].name + " " + resources[labels[label].name].amount
+		})
+	}
 }
 
 function incrementFood(amount) {
@@ -52,23 +64,15 @@ function incrementDay() {
 }
 
 function updateForageRate() {
-document.getElementById("forageRate").innerHTML = gameData.population * gameData.foodForagingEfficiency + " Food/100s"
+	document.getElementById("forageRate").innerHTML = gameData.population * gameData.foodForagingEfficiency + " Food/100s"
 }
 
 function updateFoodCount() {
-document.getElementById("foodForaged").innerHTML = gameData.food + " Food Foraged"
-}
-
-function updateDryWoodCount() {
-document.getElementById("dryWoodForaged").innerHTML = gameData.dryWood + " Dry Wood Foraged"
-}
-
-function updateBroadLeavesCount() {
-document.getElementById("broadLeavesForaged").innerHTML = gameData.broadLeaves + " Broad Leaves Foraged"
+	document.getElementById("foodForaged").innerHTML = gameData.food + " Food Foraged"
 }
 
 function updatePopulationCount() {
-document.getElementById("population").innerHTML = gameData.population + "/" + gameData.populationMax + " Population"
+	document.getElementById("population").innerHTML = gameData.population + "/" + gameData.populationMax + " Population"
 }
 
 function updateInspirationCount() {
@@ -76,31 +80,20 @@ function updateInspirationCount() {
 }
 
 function autoForage() {
+	// FIXME: Old way
 	incrementFood(gameData.population * gameData.foodForagingEfficiency)
 	updateFoodCount()
+
+	if (resources != null){
+		Object.keys(resources).forEach((resource) => {
+			autoGatherResource(resources[resource].name)
+		})
+	}
 }
 
 function forageFood() {
 	gameData.food += gameData.foodPerClick
-updatepdateFoodCount()
-}
-
-function forageDryWood() {
-	if (gameData.food >= 1) {
-		gameData.food -= 1
-		gameData.dryWood += gameData.dryWoodPerClick
-		updateDryWoodCount()
-		updateFoodCount()
-	}
-}
-
-function forageBroadLeaves() {
-	if (gameData.food >= 1) {
-		gameData.food -= 1
-		gameData.broadLeaves += gameData.broadLeavesPerClick
-		updateBroadLeavesCount()
-		updateFoodCount()
-	}
+	updatepdateFoodCount()
 }
 
 function buyPopulation(){
@@ -114,12 +107,11 @@ function buyPopulation(){
 }
 
 function constructLeanTo() {
-	if(gameData.dryWood >= 40 && gameData.broadLeaves >= 40) {
+	if(resources["Dry Wood"].amount >= 40 && resources["Broad Leaves"].amount >= 40) {
 		gameData.populationMax += 1
-		gameData.dryWood -= 40
-		gameData.broadLeaves -= 40
-		updateDryWoodCount()
-		updateBroadLeavesCount()
+		resources["Dry Wood"].amount -= 40
+		resources["Broad Leaves"].amount -= 40
+		updateLabels()
 		updatePopulationCount()
 	}
 }
@@ -144,7 +136,7 @@ function buyFoodPerClick() {
 }
 
 function learnFire() {
-	createLabor("Test labor", "Test Resource")
+	createProducer("Inspiration Foraging", "Inspiration")
 	if(gameData.inspiration >= 10){
 		gameData.inspiration -= 10
 		updateInspirationCount()
@@ -154,21 +146,114 @@ function learnFire() {
 	}
 }
 
-function createLabor(name, resource){
-	var labor = {
-		name: "unassigned",
-		resource: "unassigned"
-	}
-	labor.name = name
-	labor.resource = resource
-	createElementFromLabor(labor)
+function unlockDryWood() {
+	createProducer("Dry Wood Foraging", "Dry Wood")
+	var element = document.getElementById("unlockDryWood")
+	element.parentNode.removeChild(element)
 }
 
-function createElementFromLabor(labor){
-	newDiv = document.createElement("div")
-	button1 = document.createElement("button")
-	button1.innerHTML = "Get " + labor.resource
+function unlockBroadLeaves() {
+	createProducer("Broad Leaf Foraging", "Broad Leaves")
+	var element = document.getElementById("unlockBroadLeaves")
+	element.parentNode.removeChild(element)
+}
 
+function createProducer(name, resource){
+	var producer = {
+		name: "No name assigned",
+		resource: {},
+		amount: 0,
+		rate: 1,
+		clickPower: 1
+	}
+	producer.name = name
+	producer.resource = createResource(resource)
+	addProducer(producer)
+	createElementFromProducer(producer)
+	createElementFromResource(producer.resource)
+}
+
+function createResource(name){
+	var resource = {
+		name: "unassigned",
+		amount: 0
+	}
+	resource.name = name
+	addResource(resource)
+	return resource
+}
+
+function addProducer(producer){
+	producers[producer.resource.name] = producer
+}
+
+function addResource(resource){
+	resources[resource.name] = resource
+}
+
+function autoGatherResource(resourceName){
+	let producer = producers[resourceName]
+	let amount = producer.amount * producer.rate
+	resources[resourceName].amount += amount
+}
+
+function gatherResource(resourceName){
+	let producer = producers[resourceName]
+	let amount = producer.clickPower
+	resources[resourceName].amount += amount
+}
+
+function createElementFromResource(resource){
+	label = document.createElement("p")
+	label.innerHTML = resource.amount + " " + resource.name
+
+	labels[resource.name] = {name: resource.name, reference: label}
+
+	document.getElementById("resourceContainer").appendChild(label)
+}
+
+function buyProducer(resourceName){
+	if (gameData.food >= 75) {
+	  gameData.food -= 75
+	  updateFoodCount()
+
+	  let producer = producers[resourceName]
+	  producer.amount += 1
+	}
+}
+
+function upgradeHarvestPower(resourceName, upgradeBtn){
+	let producer = producers[resourceName]
+	let level = producer.clickPower
+	let upgradeCost = level * Math.pow(2, level)
+	if (resources[resourceName].amount >= upgradeCost) {
+	  resources[resourceName].amount -= upgradeCost
+	  //TODO: Update specific label only
+	  updateLabels()
+	  
+	  producer.clickPower += 1
+	  upgradeCost = (level + 1) * Math.pow(2, (level + 1))
+	  upgradeBtn.innerHTML = "Harvest Power " + producer.clickPower + " (" + upgradeCost + " " + resourceName + ")"
+	}
+}
+
+function createElementFromProducer(producer){
+	let newDiv = document.createElement("div")
+	let header = document.createElement("h4")
+	header.innerHTML = producer.name
+	let button1 = document.createElement("button")
+	button1.innerHTML = producer.resource.name + " Forager (75 Food)"
+	button1.onclick = function() { buyProducer(producer.resource.name) }
+	let button2 = document.createElement("button")
+	button2.innerHTML = "Forage " + producer.resource.name
+	button2.onclick = function() { gatherResource(producer.resource.name) }
+	let button3 = document.createElement("button")
+	button3.innerHTML = "Harvest Power 1 (2 " + producer.resource.name + ")"
+	button3.onclick = function() { upgradeHarvestPower(producer.resource.name, button3) }
+
+	newDiv.appendChild(header)
 	newDiv.appendChild(button1)
-	document.body.appendChild(newDiv)
+	newDiv.appendChild(button2)
+	newDiv.appendChild(button3)
+	document.getElementById("jobContainer").appendChild(newDiv)
 }

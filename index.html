@@ -12,25 +12,27 @@
     <hr>
 
     <h2>Resources</h2>
-    <!--Historic population growth rate is 0.04% per year-->
-    <p id="population">50/52 Population</p>
-    
-    <p id="foodForaged">0 Food</p>
-    <p id="dryWoodForaged">0 Dry Wood</p>
-    <p id="broadLeavesForaged">0 Broad Leaves</p>
+    <div id="resourceContainer">
+      <!--Historic population growth rate is 0.04% per year-->
+      <p id="population">50/52 Population</p>
+      
+      <p id="foodForaged">0 Food</p>
+    </div>
     <hr>
 
     <h2>Advancements</h2>
     <p id="inspirationGained">0 Inspiration Gained</p>
     <button onclick="gainInspiration()">Gain Inspiration (10 Food)</button>
     <p>Research Available</p>
+    <button id="unlockDryWood" onclick="unlockDryWood()">Unlock Dry Wood Foraging</button>
+    <button id="unlockBroadLeaves" onclick="unlockBroadLeaves()">Unlock Broad Leaf Foraging</button>
     <button id="learnFire" onclick="learnFire()">Learn Fire (10 Inspiration)</button>
     <div id="researchContainer"></div>
     <hr>
 
     <h2>Labor</h2>
     <button onclick="buyPopulation()">Buy Population (75 Food)</button>
-    <div>
+    <div id="jobContainer">
       <h4>Plant Foraging | 50 Foragers | <span id="forageRate">750 Food/100s</span></h4>
       <button onclick="buyPlantForager()">Plant Forager (75 Food)</button>
       <br>
@@ -46,10 +48,8 @@
     </div>
     <br>
 
-    <h4>Misc. Functions</h4>    
-    <button onclick="forageDryWood()">Forage Dry Wood</button>
-    <button onclick="forageBroadLeaves()">Forage Broad Leaves</button>
-    <button onclick="constructLeanTo()">Construct Lean-to</button>
+    <h4>Misc. Functions</h4>
+    <button onclick="constructLeanTo()">Construct Lean-to (40 Dry Wood & 40 Broad Leaves) +1 to Population Max</button>
     
     <script src="js/main.js" charset="utf-8" type="text/javascript"></script>
   </body>
