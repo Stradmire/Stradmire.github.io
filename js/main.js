@@ -152,14 +152,17 @@ function learnFire() {
 
 function unlockDryWood() {
 	createProducer("Dry Wood Foraging", "Dry Wood")
-	var element = document.getElementById("unlockDryWood")
-	element.parentNode.removeChild(element)
+	deleteElement("unlockDryWood")
 }
 
 function unlockBroadLeaves() {
 	createProducer("Broad Leaf Foraging", "Broad Leaves")
-	var element = document.getElementById("unlockBroadLeaves")
-	element.parentNode.removeChild(element)
+	deleteElement("unlockBroadLeaves")
+}
+
+function unlockFlint() {
+	createProducer("Flint Foraging", "Flint")
+	deleteElement("unlockFlint")
 }
 
 function createProducer(name, resource){
