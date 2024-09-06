@@ -135,13 +135,17 @@ function buyFoodPerClick() {
 	}
 }
 
+function deleteElement(elementId){
+	var element = document.getElementById(elementId)
+	element.parentNode.removeChild(element)
+}
+
 function learnFire() {
 	createProducer("Inspiration Foraging", "Inspiration")
 	if(gameData.inspiration >= 10){
 		gameData.inspiration -= 10
 		updateInspirationCount()
-		var element = document.getElementById("learnFire")
-		element.parentNode.removeChild(element)
+		deleteElement("learnFire")
 		document.getElementById("researchContainer").innerHTML = "<button>Cook Food</button>"
 	}
 }
