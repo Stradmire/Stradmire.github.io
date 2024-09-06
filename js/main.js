@@ -14,6 +14,8 @@ let resources = {}
 
 let producers = {}
 
+let crafters = {}
+
 let labels = {}
 
 // Main loop timer
@@ -84,9 +86,14 @@ function autoForage() {
 	incrementFood(gameData.population * gameData.foodForagingEfficiency)
 	updateFoodCount()
 
-	if (resources != null){
-		Object.keys(resources).forEach((resource) => {
-			autoGatherResource(resources[resource].name)
+	if (producers != null){
+		Object.keys(producers).forEach((producer) => {
+			autoProduceResource(producers[producer].resource.name)
+		})
+	}
+	if (crafters != null){
+		Object.keys(crafters).forEach((crafter) => {
+			autoCraftResource(crafters[crafter].resource.name)
 		})
 	}
 }
@@ -141,7 +148,6 @@ function deleteElement(elementId){
 }
 
 function learnFire() {
-	createProducer("Inspiration Foraging", "Inspiration")
 	if(gameData.inspiration >= 10){
 		gameData.inspiration -= 10
 		updateInspirationCount()
@@ -175,9 +181,134 @@ function createProducer(name, resource){
 	}
 	producer.name = name
 	producer.resource = createResource(resource)
-	addProducer(producer)
+	registerProducer(producer)
 	createElementFromProducer(producer)
 	createElementFromResource(producer.resource)
+}
+
+function checkCraftable(crafter){
+	let craftable = true
+	if (crafter.componentCost != null){
+		Object.keys(crafter.componentCost).forEach((element) => {
+			let resourceName = crafter.componentCost[element].name
+			let resourceCost = crafter.componentCost[element].cost
+			let resourceAmount = resources[resourceName].amount
+			if (resourceCost > resourceAmount) {
+				craftable = false
+			}
+		})
+	}
+	return craftable
+}
+
+function getAmountCraftable(crafter){
+	// TODO: Test with infinity
+	let highestCraftableAmount = 1000000
+	if (crafter.componentCost != null){
+		Object.keys(crafter.componentCost).forEach((element) => {
+			let resourceName = crafter.componentCost[element].name
+			let resourceCost = crafter.componentCost[element].cost
+			let resourceAmount = resources[resourceName].amount
+			
+			if(resourceAmount < 1){
+				return 0
+			}
+			craftableAmount = Math.floor(resourceAmount / resourceCost)
+			highestCraftableAmount = craftableAmount < highestCraftableAmount ? craftableAmount : highestCraftableAmount
+		})
+	}
+	return highestCraftableAmount
+}
+
+function subractCraftingResources(crafter, num = 1){
+	if (crafter.componentCost != null){
+		Object.keys(crafter.componentCost).forEach((element) => {
+			let resourceName = crafter.componentCost[element].name
+			let resourceCost = crafter.componentCost[element].cost
+			let resourceAmount = resources[resourceName].amount
+			
+			resources[resourceName].amount -= resourceCost * num
+		})
+	}
+}
+
+function craftResource(resourceName) {
+	craftItem(resourceName)
+}
+
+function autoCraftItem(resourceName){
+	let crafter = crafters[resourceName]
+	let amount = crafter.amount
+	let craftable = getAmountCraftable(crafter)
+	if(craftable <= amount){
+		resources[resourceName].amount += amount
+		subractCraftingResources(crafter, craftable)
+	}
+}
+
+function craftItem(resourceName){
+	let crafter = crafters[resourceName]
+	let amount = crafter.clickPower
+	if(checkCraftable(crafter) == true){
+		resources[resourceName].amount += amount
+		subractCraftingResources(crafter)
+	}
+}
+
+let ResourceRequirement = function(resourceName, cost) {
+	this.name = resourceName,
+	this.cost = cost
+}
+
+function unlockFlintCrafting(){
+	let cost1 = new ResourceRequirement("Flint", 1)
+	let componentCost = {Cost1: cost1}
+
+	createCrafter("Flint Crafter", "Flint Craft Knowledge", componentCost)
+	deleteElement("unlockFlintCrafting")
+}
+
+function createCrafter(label, resourceName, componentCost){
+	let crafter = {
+		label: "",
+		resource: {},
+		// TODO: Make an array
+		componentCost: {},
+		amount: 0,
+		rate: 1,
+		clickPower: 1
+	}
+	crafter.label = label
+	crafter.resource = createResource(resourceName)
+	crafter.componentCost = componentCost
+	registerCrafter(crafter)
+	createElementFromCrafter(crafter)
+	createElementFromResource(crafter.resource)
+}
+
+function registerCrafter(crafter){
+	crafters[crafter.resource.name] = crafter
+}
+
+function createElementFromCrafter(crafter){
+	let newDiv = document.createElement("div")
+	let header = document.createElement("h4")
+	header.innerHTML = crafter.label
+	let button1 = document.createElement("button")
+	button1.innerHTML = crafter.resource.name + " Crafter (75 Food)"
+	button1.onclick = function() { buyCrafter(crafter.resource.name) }
+	let button2 = document.createElement("button")
+	button2.innerHTML = "Craft " + crafter.resource.name
+	button2.onclick = function() { craftResource(crafter.resource.name) }
+	let button3 = document.createElement("button")
+	button3.innerHTML = "Craft Power 1 (2 " + crafter.resource.name + ")"
+	button3.onclick = function() { upgradeCraftPower(crafter.resource.name, button3) }
+
+	newDiv.appendChild(header)
+	newDiv.appendChild(button1)
+	newDiv.appendChild(button2)
+	newDiv.appendChild(button3)
+	document.getElementById("jobContainer").appendChild(newDiv)
 }
 
 function createResource(name){
@@ -186,22 +317,26 @@ function createResource(name){
 		amount: 0
 	}
 	resource.name = name
-	addResource(resource)
+	registerResource(resource)
 	return resource
 }
 
-function addProducer(producer){
+function registerProducer(producer){
 	producers[producer.resource.name] = producer
 }
 
-function addResource(resource){
+function registerResource(resource){
 	resources[resource.name] = resource
 }
 
-function autoGatherResource(resourceName){
+function autoProduceResource(resourceName){
 	let producer = producers[resourceName]
 	let amount = producer.amount * producer.rate
 	resources[resourceName].amount += amount
+}
+
+function autoCraftResource(resourceName){
+	autoCraftItem(resourceName)
 }
 
 function gatherResource(resourceName){
@@ -217,6 +352,16 @@ function createElementFromResource(resource){
 	labels[resource.name] = {name: resource.name, reference: label}
 
 	document.getElementById("resourceContainer").appendChild(label)
+}
+
+function buyCrafter(resourceName){
+	if (gameData.food >= 75) {
+	  gameData.food -= 75
+	  updateFoodCount()
+
+	  let crafter = crafters[resourceName]
+	  crafter.amount += 1
+	}
 }
 
 function buyProducer(resourceName){
@@ -241,6 +386,21 @@ function upgradeHarvestPower(resourceName, upgradeBtn){
 	  producer.clickPower += 1
 	  upgradeCost = (level + 1) * Math.pow(2, (level + 1))
 	  upgradeBtn.innerHTML = "Harvest Power " + producer.clickPower + " (" + upgradeCost + " " + resourceName + ")"
+	}
+}
+
+function upgradeCraftPower(resourceName, upgradeBtn){
+	let crafter = crafters[resourceName]
+	let level = crafter.clickPower
+	let upgradeCost = level * Math.pow(2, level)
+	if (resources[resourceName].amount >= upgradeCost) {
+	  resources[resourceName].amount -= upgradeCost
+	  //TODO: Update specific label only
+	  updateLabels()
+	  
+	  crafter.clickPower += 1
+	  upgradeCost = (level + 1) * Math.pow(2, (level + 1))
+	  upgradeBtn.innerHTML = "Craft Power " + crafter.clickPower + " (" + upgradeCost + " " + resourceName + ")"
 	}
 }
 
