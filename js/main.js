@@ -156,19 +156,9 @@ function learnFire() {
 	}
 }
 
-function unlockDryWood() {
-	createProducer("Dry Wood Foraging", "Dry Wood")
-	deleteElement("unlockDryWood")
-}
-
-function unlockBroadLeaves() {
-	createProducer("Broad Leaf Foraging", "Broad Leaves")
-	deleteElement("unlockBroadLeaves")
-}
-
-function unlockFlint() {
-	createProducer("Flint Foraging", "Flint")
-	deleteElement("unlockFlint")
+function unlockProducer(name) {
+	createProducer(name + " Foraging", name)
+	deleteElement("unlock " + name)
 }
 
 function createProducer(name, resource){
