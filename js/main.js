@@ -311,12 +311,19 @@ function createElementFromCrafter(crafter){
 	document.getElementById("jobContainer").appendChild(newDiv)
 }
 
-function createResource(name){
-	var resource = {
-		name: "unassigned",
-		amount: 0
+let Resource = function(name){
+	this.name = name,
+	this.amount = 0,
+	this.cents = 0,
+	this.addCents = function(num){
+		this.cents += num
+		amount += Math.floor(this.cents/100)
+		this.cents = this.cents % 100
 	}
-	resource.name = name
+}
+
+function createResource(name){
+	let resource = new Resource(name)
 	registerResource(resource)
 	return resource
 }
