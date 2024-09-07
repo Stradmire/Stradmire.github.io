@@ -230,7 +230,7 @@ function autoCraftItem(resourceName){
 	let crafter = crafters[resourceName]
 	let amount = crafter.amount
 	let craftable = getAmountCraftable(crafter)
-	if(craftable >= amount){
+	if(craftable >= amount && checkCraftable(crafter)){
 		resources[resourceName].amount += amount
 		subractCraftingResources(crafter, amount)
 	}
