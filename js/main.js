@@ -28,6 +28,7 @@ function update() {
 	autoForage()
 	updateLabels()	
 	incrementDay()
+	updateHeat()
 }
 
 function updateLabels() {
